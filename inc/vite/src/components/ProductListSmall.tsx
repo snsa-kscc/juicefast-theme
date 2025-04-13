@@ -63,7 +63,7 @@ const ProductListSmall = () => {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold mb-6">Featured Products (Small) dev</h2>
+      <h2 className="text-2xl font-bold mb-6">Featured Products (Small)</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {products.map((product) => (
           <div key={product.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
