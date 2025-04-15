@@ -185,3 +185,103 @@ add_filter('determine_current_user', function($user_id) {
     
     return $user_id;
 }, 999);
+
+/**
+ * Display products under product category menu items
+ * Uses the walker_nav_menu_start_el filter to add products after each category menu item
+ */
+function jf_add_products_to_menu_items($item_output, $item) {
+    // Check if WooCommerce is active
+    if (!class_exists('WooCommerce')) {
+        return $item_output;
+    }
+    
+    // We only care about product category taxonomy items
+    if ($item->type !== 'taxonomy' || $item->object !== 'product_cat') {
+        return $item_output;
+    }
+    
+    // The category ID is in the object_id
+    $category_id = $item->object_id;
+    
+    // Get products for this specific category only
+    $products_html = jf_get_category_products_html($category_id);
+    
+    // Add products HTML after the menu item's </a> tag
+    $item_output = str_replace('</a>', '</a>' . $products_html, $item_output);
+    
+    return $item_output;
+}
+add_filter('walker_nav_menu_start_el', 'jf_add_products_to_menu_items', 10, 2);
+
+/**
+ * Get HTML for products in a given category
+ * 
+ * @param int $category_id The product category ID
+ * @return string HTML output for the products
+ */
+function jf_get_category_products_html($category_id) {
+    // Get the category
+    $category = get_term($category_id, 'product_cat');
+    if (!$category || is_wp_error($category)) {
+        return '';
+    }
+    
+    // Query ONLY direct products in this specific category (not including subcategories)
+    $args = array(
+        'post_type'      => 'product',
+        'posts_per_page' => 7, // Limit products as needed
+        'tax_query'      => array(
+            array(
+                'taxonomy' => 'product_cat',
+                'field'    => 'term_id',
+                'terms'    => $category_id,
+                'include_children' => false, // Very important - only include direct products
+            ),
+        ),
+    );
+    
+    $products_query = new WP_Query($args);
+    
+    if (!$products_query->have_posts()) {
+        wp_reset_postdata();
+        return ''; // No products, return empty string
+    }
+    
+    $output = '<div class="jf-category-products-wrapper">';
+    $output .= '<ul class="jf-category-products">';
+    
+    while ($products_query->have_posts()) {
+        $products_query->the_post();
+        global $product;
+        
+        if (!$product) continue;
+        
+        $product_id = $product->get_id();
+        $product_name = $product->get_name();
+        $product_link = get_permalink($product_id);
+        
+        // Get product thumbnail
+        $image = wp_get_attachment_image_src(get_post_thumbnail_id($product_id), 'thumbnail');
+        $image_url = $image ? $image[0] : wc_placeholder_img_src('thumbnail');
+        
+        $output .= '<li class="jf-product-item">';
+        $output .= '<a href="' . esc_url($product_link) . '">';
+        $output .= '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($product_name) . '" width="40" height="40" class="jf-product-thumb" />';
+        $output .= '<span>' . esc_html($product_name) . '</span>';
+        $output .= '</a>';
+        $output .= '</li>';
+    }
+    
+    // Add a link with the category name
+    $category_name = $category->name;
+    $output .= '<li class="jf-category-name-item"><a href="' . esc_url(get_term_link($category)) . '">' . esc_html($category_name) . '</a></li>';
+    
+    $output .= '</ul>';
+    $output .= '</div>';
+    
+    // Very important - always reset the post data
+    wp_reset_postdata();
+    
+    return $output;
+}

@@ -91,8 +91,7 @@ $viewport_content = apply_filters( 'hello_elementor_viewport_content', 'width=de
     </div>
 </header>
 
-<div id="react-island-products"></div>
-<div id="react-island-products-small"></div>
+<!-- <div id="react-island-products"></div> -->
 <!-- HEADER END -->
 
 <!-- Smooth Infinite Scroll Script -->
