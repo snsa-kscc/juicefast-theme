@@ -1,14 +1,6 @@
-/* 
-Theme Name: Juicefast Theme
-Description: Juicefast theme 2025
-Author: Juicefast
-Author URI: https://websis.hr
-Template: hello-elementor
-Version: 2.0.0
-Text Domain: hello-elementor-child
-License: GNU General Public License v3 or later.
-License URI: https://www.gnu.org/licenses/gpl-3.0.html
-*/
+/**
+ * JuiceFast Mega Menu Styles
+ */
 
 /* ----- Header & Navigation Styles ----- */
 .jf-custom-header {
@@ -86,18 +78,13 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
     transform: translateY(10px);
     transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
     z-index: 100;
-    display: block !important;
-    list-style: none !important;
-    margin: 0 !important;
+    list-style: none;
 }
 
-.jf-menu > li:hover > .sub-menu,
-.jf-menu > li:focus-within > .sub-menu,
-.jf-menu > li.menu-item-hover > .sub-menu {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    pointer-events: auto !important;
+.jf-menu > li:hover > .sub-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 /* Second-level dropdown */
@@ -106,17 +93,16 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
     top: 0;
 }
 
-.jf-menu .sub-menu li {
+.jf-menu .sub-menu > li {
     position: relative;
-    display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
-.jf-menu .sub-menu li:last-child {
+.jf-menu .sub-menu > li:last-child {
     margin-bottom: 0;
 }
 
-.jf-menu .sub-menu a {
+.jf-menu .sub-menu > li > a {
     color: #333;
     font-weight: 400;
     display: block;
@@ -126,35 +112,31 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
     font-size: 15px;
 }
 
-.jf-menu .sub-menu a:hover {
+.jf-menu .sub-menu > li > a:hover {
     color: #39B54A;
 }
 
 /* Category Products in Mega Menu */
 .jf-category-products-wrapper {
-    position: absolute !important;
-    left: 100% !important;
-    top: -1.5rem !important;
-    min-width: 400px !important;
-    background: white !important;
-    border-radius: 0 12px 12px 0 !important;
-    box-shadow: 10px 0 25px rgba(0, 0, 0, 0.05) !important;
-    padding: 1.5rem !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transform: translateX(10px) !important;
-    transition: all 0.3s ease !important;
-    display: block !important;
-    z-index: 101 !important;
+    position: absolute;
+    left: 100%;
+    top: -1.5rem;
+    min-width: 400px;
+    background: white;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 10px 0 25px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+    z-index: 101;
 }
 
-.jf-menu .sub-menu li:hover .jf-category-products-wrapper,
-.jf-menu .sub-menu li:focus-within .jf-category-products-wrapper,
-.jf-category-products-wrapper.show-products {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateX(0) !important;
-    pointer-events: auto !important;
+.jf-menu .sub-menu > li:hover .jf-category-products-wrapper {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
 }
 
 .jf-category-products {
@@ -264,28 +246,6 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 .jf-btn-find-juicefast:hover {
     background: #2C9A3B;
     color: white;
-}
-
-/* Top Header Slider */
-.jf-text-slider {
-    background-color: #f5f5f5;
-    padding: 0.5rem 0;
-    overflow: hidden;
-}
-
-.jf-top-header .swiper-slide {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 0 1.5rem;
-    white-space: nowrap;
-    font-size: 14px;
-}
-
-.jf-top-header .swiper-slide img {
-    width: 20px;
-    height: 20px;
 }
 
 /* Responsive Adjustments */

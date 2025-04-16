@@ -42,6 +42,10 @@ function jf_theme_enqueue_swiper() {
     wp_enqueue_style('swiper-css', get_stylesheet_directory_uri() . '/assets/swiper/swiper-bundle.min.css', array(), '10.0.0');
     wp_enqueue_script('swiper-js', get_stylesheet_directory_uri() . '/assets/swiper/swiper-bundle.min.js', array(), '10.0.0', true);
     wp_enqueue_script('custom-js', esc_url(get_stylesheet_directory_uri() . '/assets/swiper/custom.js'), ['swiper-js'], null, true);
+    
+    // Enqueue mega menu CSS and JS
+    wp_enqueue_style('mega-menu-css', get_stylesheet_directory_uri() . '/inc/assets/mega-menu.css', array(), '1.0.0');
+    wp_enqueue_script('mega-menu-js', get_stylesheet_directory_uri() . '/inc/assets/mega-menu.js', array(), '1.0.0', true);
 }
 add_action('wp_enqueue_scripts', 'jf_theme_enqueue_swiper');
 
