@@ -318,7 +318,7 @@ function store_locator_render_form() {
             day_editors_html += `
             <div class="day-editor-row" data-day-key="${day_key}" style="display: flex; align-items: center; margin-bottom: 5px;">
                 <label for="day-time-input-${day_key}_${new_row_index}" style="margin-right: 5px; min-width: 80px;">${days_map_js_global[day_key]}:</label>
-                <input type="text" id="day-time-input-${day_key}_${new_row_index}" class="day-time-input" value="" pattern="[0-9:\-\s,]*" placeholder="e.g., 09:00-12:00, 14:00-17:00 / empty for closed" style="flex-grow: 1;">
+                <input type="text" id="day-time-input-${day_key}_${new_row_index}" class="day-time-input" value="" pattern="[0-9:\\-\\s,]*" placeholder="e.g., 09:00-12:00, 14:00-17:00 / empty for closed" style="flex-grow: 1;">
             </div>
             `;
         }
