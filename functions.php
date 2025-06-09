@@ -58,7 +58,9 @@ add_action('wp_enqueue_scripts', 'jf_theme_enqueue_swiper');
  * @snippet		Load child theme files with shortcodes and custom functions
  */
 require_once get_stylesheet_directory() . '/inc/jf-shortcodes.php';
-require_once get_stylesheet_directory() . '/inc/jf-custom-functions.php';
+require_once get_stylesheet_directory() . '/inc/jf-custom-functions-1.php';
+require_once get_stylesheet_directory() . '/inc/jf-custom-functions-2.php';
+
 
 /**
  * @snippet		Register Wordpress Menu items for Mobile menu header
