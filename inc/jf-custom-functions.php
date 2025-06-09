@@ -13,6 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Vite integration for WordPress
+ *
+ * Handles the loading of Vite assets in both development and production environments.
+ * In development mode, it connects to the Vite dev server.
+ * In production mode, it loads the built assets.
+ *
+ * @return void
  */
 function jf_enqueue_vite_assets() {
     $theme_dir = get_stylesheet_directory();
@@ -107,6 +113,11 @@ add_action('rest_api_init', function () {
 
 /**
  * Add specific ACF fields to WooCommerce product categories in REST API
+ *
+ * Registers a REST field for product categories to include ACF fields in the API response.
+ * Only works if ACF plugin is active.
+ *
+ * @return void
  */
 function add_acf_to_product_categories_api() {
     // Check if ACF is active
@@ -128,9 +139,11 @@ add_action('rest_api_init', 'add_acf_to_product_categories_api');
 
 /**
  * Get specific ACF fields for product categories
- * 
+ *
+ * Retrieves ACF fields for a given product category and formats them for API response.
+ *
  * @param array $category The category data
- * @return array ACF fields
+ * @return array ACF fields for the category
  */
 function get_product_category_acf_data($category) {
     $field1_name = 'category_label'; 
@@ -156,6 +169,9 @@ function get_product_category_acf_data($category) {
 /**
  * Allow WooCommerce REST API access from localhost without authentication
  * Only for development environments
+ *
+ * @param int $user_id The current user ID
+ * @return int The user ID to use for API requests
  */
 add_filter('determine_current_user', function($user_id) {
     // Only apply in REST API requests
@@ -188,7 +204,13 @@ add_filter('determine_current_user', function($user_id) {
 
 /**
  * Display products under product category menu items
- * Uses the walker_nav_menu_start_el filter to add products after each category menu item
+ *
+ * Uses the walker_nav_menu_start_el filter to add products after each category menu item.
+ * Only applies to menu items that are linked to WooCommerce product categories.
+ *
+ * @param string $item_output The menu item's HTML output
+ * @param object $item The menu item object
+ * @return string Modified menu item HTML with products list
  */
 function jf_add_products_to_menu_items($item_output, $item) {
     // Check if WooCommerce is active
@@ -216,7 +238,9 @@ add_filter('walker_nav_menu_start_el', 'jf_add_products_to_menu_items', 10, 2);
 
 /**
  * Get HTML for products in a given category
- * 
+ *
+ * Retrieves products for a given category and formats them as HTML.
+ *
  * @param int $category_id The product category ID
  * @return string HTML output for the products
  */
@@ -284,4 +308,238 @@ function jf_get_category_products_html($category_id) {
     wp_reset_postdata();
     
     return $output;
+}
+
+/**
+ * Simple WordPress Integration for Vite React App
+ */
+
+define('VITE_APP_PATH', get_stylesheet_directory_uri() . '/vite-app/assets/');
+
+/**
+ * Add modulepreload for App.js in the head
+ *
+ * Adds modulepreload link in the head section for better performance with ES modules.
+ *
+ * @return void
+ */
+function vite_add_modulepreload() {
+    echo '<link rel="modulepreload" crossorigin href="' . VITE_APP_PATH . 'App.js">';
+}
+add_action('wp_head', 'vite_add_modulepreload');
+
+/**
+ * Add the CSS file and shared App.js file
+ *
+ * Enqueues the common Vite assets (CSS and JS) for the theme.
+ *
+ * @return void
+ */
+function vite_enqueue_common_assets() {
+    wp_enqueue_style('vite-app-css', VITE_APP_PATH . 'style.css');
+    
+    wp_enqueue_script('vite-app-js', VITE_APP_PATH . 'App.js', [], null, true);
+    
+    // Add script type="module" attribute to App.js
+    add_filter('script_loader_tag', function($tag, $handle) {
+        if ('vite-app-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+}
+
+/**
+ * Stores Page Shortcode
+ *
+ * Creates a shortcode for displaying the stores page React component.
+ * Usage: [vite_stores]
+ *
+ * @return string HTML markup for the stores component
+ */
+function vite_stores_shortcode() {
+    vite_enqueue_common_assets();
+    
+    wp_enqueue_script('vite-stores-js', VITE_APP_PATH . 'stores.js', ['vite-app-js'], null, true);
+    
+    add_filter('script_loader_tag', function($tag, $handle) {
+        if ('vite-stores-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+    
+    return '
+    <div class="vite-app stores-app">
+        <div id="stores-root"></div>
+    </div>';
+}
+add_shortcode('vite_stores', 'vite_stores_shortcode');
+
+/**
+ * Quiz Page Shortcode
+ *
+ * Creates a shortcode for displaying the quiz page React component.
+ * Usage: [vite_quiz]
+ *
+ * @return string HTML markup for the quiz component
+ */
+function vite_quiz_shortcode() {
+    vite_enqueue_common_assets();
+    
+    wp_enqueue_script('vite-quiz-js', VITE_APP_PATH . 'quiz.js', ['vite-app-js'], null, true);
+    
+    add_filter('script_loader_tag', function($tag, $handle) {
+        if ('vite-quiz-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+    
+    return '
+    <div class="vite-app quiz-app">
+        <div id="quiz-root"></div>
+    </div>';
+}
+add_shortcode('vite_quiz', 'vite_quiz_shortcode');
+
+/**
+ * Generic App Shortcode
+ *
+ * Creates a generic shortcode for displaying any React component.
+ * Usage: [vite_app page="stores"] or [vite_app page="quiz"]
+ *
+ * @param array $atts Shortcode attributes
+ * @return string HTML markup for the specified component
+ */
+function vite_app_shortcode($atts) {
+    // Get the page name from shortcode
+    $atts = shortcode_atts([
+        'page' => 'stores' // Default to stores page if none specified
+    ], $atts);
+    
+    $page = $atts['page'];
+    
+    vite_enqueue_common_assets();
+    
+    wp_enqueue_script('vite-' . $page . '-js', VITE_APP_PATH . $page . '.js', ['vite-app-js'], null, true);
+    
+    add_filter('script_loader_tag', function($tag, $handle) use ($page) {
+        if ('vite-' . $page . '-js' !== $handle) {
+            return $tag;
+        }
+        return str_replace(' src', ' type="module" crossorigin src', $tag);
+    }, 10, 2);
+    
+    return '
+    <div class="vite-app ' . $page . '-app">
+        <div id="' . $page . '-root"></div>
+    </div>';
+}
+add_shortcode('vite_app', 'vite_app_shortcode');
+
+add_action('rest_api_init', function () {
+    register_rest_route('store-locator/v1', '/stores', [
+        'methods' => 'GET',
+        'permission_callback' => '__return_true',  // public, no auth required
+        'callback' => function () {
+            $data = get_option('store_locator_data', '[]');
+            return rest_ensure_response(json_decode($data, true));
+        },
+    ]);
+});
+
+add_action('admin_menu', function () {
+    add_menu_page(
+        'Store Locator',
+        'Store Locator',
+        'manage_options',
+        'store-locator-ui',
+        'store_locator_render_form',
+        'dashicons-location-alt',
+        80
+    );
+});
+
+/**
+ * Render the Store Locator admin form
+ *
+ * Displays and processes the admin form for managing store locations.
+ * Handles form submission, validation, and data storage.
+ *
+ * @return void
+ */
+function store_locator_render_form() {
+    if (isset($_POST['store_locator_submit'])) {
+        check_admin_referer('store_locator_save');
+
+        $new_data = [];
+        if (!empty($_POST['title'])) {
+            foreach ($_POST['title'] as $index => $title) {
+                $new_data[] = [
+                    'title' => sanitize_text_field($title),
+                    'lat' => floatval($_POST['lat'][$index]),
+                    'lng' => floatval($_POST['lng'][$index]),
+                    'email' => sanitize_email($_POST['email'][$index]),
+                ];
+            }
+        }
+
+        update_option('store_locator_data', wp_json_encode($new_data));
+        echo '<div class="updated"><p>Saved successfully.</p></div>';
+    }
+
+    $data = json_decode(get_option('store_locator_data', '[]'), true);
+    ?>
+    <div class="wrap">
+        <h1>Store Locator Editor</h1>
+        <form method="post">
+            <?php wp_nonce_field('store_locator_save'); ?>
+            <table class="widefat">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Email</th>
+                        <th>Delete?</th>
+                    </tr>
+                </thead>
+                <tbody id="store-rows">
+                    <?php foreach ($data as $i => $store): ?>
+                        <tr>
+                            <td><input type="text" name="title[]" value="<?php echo esc_attr($store['title']); ?>" required></td>
+                            <td><input type="text" name="lat[]" value="<?php echo esc_attr($store['lat']); ?>" required></td>
+                            <td><input type="text" name="lng[]" value="<?php echo esc_attr($store['lng']); ?>" required></td>
+                            <td><input type="email" name="email[]" value="<?php echo esc_attr($store['email']); ?>"></td>
+                            <td><button type="button" class="remove-row button">X</button></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <p><button type="button" class="button" id="add-row">+ Add Store</button></p>
+            <p><input type="submit" name="store_locator_submit" class="button button-primary" value="Save Stores"></p>
+        </form>
+    </div>
+
+    <script>
+    document.getElementById('add-row').addEventListener('click', function () {
+        const row = `
+        <tr>
+            <td><input type="text" name="title[]" value="" required></td>
+            <td><input type="text" name="lat[]" value="" required></td>
+            <td><input type="text" name="lng[]" value="" required></td>
+            <td><input type="email" name="email[]" value=""></td>
+            <td><button type="button" class="remove-row button">X</button></td>
+        </tr>`;
+        document.getElementById('store-rows').insertAdjacentHTML('beforeend', row);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-row')) {
+            e.target.closest('tr').remove();
+        }
+    });
+    </script>
+    <?php
 }
